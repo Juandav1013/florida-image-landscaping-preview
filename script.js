@@ -4,6 +4,8 @@ const menuToggle = document.querySelector('.menu-toggle');
 const mobileMenu = document.querySelector('#mobile-menu');
 const slides = [...document.querySelectorAll('.project-slide')];
 const dots = [...document.querySelectorAll('.project-dots button')];
+const serviceSlides = [...document.querySelectorAll('.service-slide')];
+const serviceDots = [...document.querySelectorAll('.service-dots button')];
 const leadForm = document.querySelector('#lead-form');
 const formStatus = document.querySelector('.form-status');
 const heroVideo = document.querySelector('#hero-video');
@@ -11,6 +13,8 @@ const videoControl = document.querySelector('.video-control');
 const floatingCta = document.querySelector('.floating-cta');
 let projectIndex = 0;
 let projectTimer;
+let serviceIndex = 0;
+let serviceTimer;
 
 function updateScrollUI() {
   const y = window.scrollY;
@@ -58,6 +62,25 @@ function restartProjectTimer() {
   projectTimer = window.setInterval(() => showProject(projectIndex + 1), 6500);
 }
 
+function showService(nextIndex) {
+  serviceIndex = (nextIndex + serviceSlides.length) % serviceSlides.length;
+  serviceSlides.forEach((slide, i) => {
+    const active = i === serviceIndex;
+    slide.classList.toggle('active', active);
+    slide.setAttribute('aria-hidden', String(!active));
+  });
+  serviceDots.forEach((dot, i) => {
+    const active = i === serviceIndex;
+    dot.classList.toggle('active', active);
+    dot.setAttribute('aria-selected', String(active));
+  });
+}
+
+function restartServiceTimer() {
+  window.clearInterval(serviceTimer);
+  serviceTimer = window.setInterval(() => showService(serviceIndex + 1), 6000);
+}
+
 function loadHeroVideo() {
   const source = 'https://video.squarespace-cdn.com/content/v1/65a2b0c7fd3e85633a1a7089/1f02554c-bdbc-43ef-882d-d83ecd389f90/playlist.m3u8';
   if (window.Hls?.isSupported()) {
@@ -96,12 +119,18 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeMenu();
   if (event.key === 'ArrowRight' && document.activeElement.closest?.('.project-stage')) showProject(projectIndex + 1);
   if (event.key === 'ArrowLeft' && document.activeElement.closest?.('.project-stage')) showProject(projectIndex - 1);
+  if (event.key === 'ArrowRight' && document.activeElement.closest?.('.service-showcase')) showService(serviceIndex + 1);
+  if (event.key === 'ArrowLeft' && document.activeElement.closest?.('.service-showcase')) showService(serviceIndex - 1);
 });
 
 document.querySelector('.project-next').addEventListener('click', () => { showProject(projectIndex + 1); restartProjectTimer(); });
 document.querySelector('.project-prev').addEventListener('click', () => { showProject(projectIndex - 1); restartProjectTimer(); });
 dots.forEach((dot, index) => dot.addEventListener('click', () => { showProject(index); restartProjectTimer(); }));
 restartProjectTimer();
+document.querySelector('.service-next').addEventListener('click', () => { showService(serviceIndex + 1); restartServiceTimer(); });
+document.querySelector('.service-prev').addEventListener('click', () => { showService(serviceIndex - 1); restartServiceTimer(); });
+serviceDots.forEach((dot, index) => dot.addEventListener('click', () => { showService(index); restartServiceTimer(); }));
+restartServiceTimer();
 
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
